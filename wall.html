@@ -346,13 +346,20 @@
   THE LAST WEBSITE &bull; MMXXVI
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
-// ══════════ SUPABASE ══════════
-const sb = window.supabase.createClient(
-  'https://amyxocqdfcaeieerqllv.supabase.co',
-  'sb_publishable_uvng-9IdwolvuiCG9pQTIQ_1gyaKOVH'
-);
+// ══════════ FIREBASE ══════════
+firebase.initializeApp({
+  apiKey: "AIzaSyAiOiy0dvULJ-4WtXqq6y4yFKpqvWNqMeM",
+  authDomain: "thislast-3e3dd.firebaseapp.com",
+  projectId: "thislast-3e3dd",
+  storageBucket: "thislast-3e3dd.firebasestorage.app",
+  messagingSenderId: "375523826802",
+  appId: "1:375523826802:web:45a10e2c0e8a0f30f2f6eb",
+  measurementId: "G-3VH21NNK0P"
+});
+const db = firebase.firestore();
 
 // ══════════ STARS ══════════
 (function() {
@@ -411,7 +418,8 @@ const colors = 8;
 
 function createNoteEl(note, index) {
   const div = document.createElement('div');
-  const colorIdx = (note.id || index) % colors;
+  const hash = typeof note.id === 'string' ? note.id.split('').reduce((a,c) => a + c.charCodeAt(0), 0) : (note.id || index);
+  const colorIdx = hash % colors;
   const rot = (Math.random() * 8 - 4).toFixed(1);
   const taped = index % 3 === 0;
   const tapeRot = (Math.random() * 10 - 5).toFixed(1);
@@ -447,26 +455,29 @@ async function loadWall() {
   const wall = document.getElementById('wall');
 
   try {
-    const { data, error, count } = await sb
-      .from('wall_notes')
-      .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .limit(200);
-
-    if (error) throw error;
+    const snap = await db.collection('wall_notes')
+      .orderBy('created_at', 'desc')
+      .limit(200)
+      .get();
 
     loading.style.display = 'none';
 
-    if (!data || data.length === 0) {
+    if (snap.empty) {
       wall.innerHTML = '<div class="loading">The wall is empty. Be the first atom to leave a mark.</div>';
       return;
     }
 
     document.getElementById('note-count').textContent =
-      `${count || data.length} souls have signed the wall`;
+      `${snap.size} souls have signed the wall`;
 
-    data.forEach((note, i) => {
-      wall.appendChild(createNoteEl(note, i));
+    snap.forEach((doc, i) => {
+      const note = doc.data();
+      note.id = doc.id;
+      // Convert Firestore Timestamp to ISO string
+      if (note.created_at && note.created_at.toDate) {
+        note.created_at = note.created_at.toDate().toISOString();
+      }
+      wall.appendChild(createNoteEl(note, wall.children.length));
     });
 
   } catch (e) {
@@ -500,13 +511,12 @@ async function submitNote() {
   result.textContent = '';
 
   try {
-    const { error } = await sb.from('wall_notes').insert({
+    await db.collection('wall_notes').add({
       name: name.slice(0, 50),
       message: message.slice(0, 280),
       prompt: prompts[currentPromptIdx],
+      created_at: firebase.firestore.FieldValue.serverTimestamp(),
     });
-
-    if (error) throw error;
 
     const celebrations = [
       "Your atoms have been immortalized. (Until the server bill is due.)",
@@ -517,7 +527,7 @@ async function submitNote() {
       "The void has received your message and says thank you. (It didn't. But we did.)",
     ];
     result.textContent = celebrations[Math.floor(Math.random() * celebrations.length)];
-    result.style.color = var('--gold', '#d4af37');
+    result.style.color = '#d4af37';
 
     document.getElementById('sign-message').value = '';
     shufflePrompt();
