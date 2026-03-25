@@ -588,8 +588,20 @@ function revealTruths() {
   const blinks = Math.round(days * 24 * 60 * 17); // ~17/min while awake (adjusted)
   const words = Math.round(age * 16000 * 365); // ~16k words/day
   const dreams = Math.round(age * 365 * 4); // ~4-6 dreams/night
-  const sneezes = Math.round(age * 365 * 0.66); // ~200/yr avg
-  const hoursOnPhone = Math.round(age >= 12 ? (age - 12) * 365 * 4.5 : 0); // ~4.5 hrs/day post-12
+  const sneezes = Math.round(age * 365 * 1.1); // ~400/yr avg (multiple per episode)
+  // Smartphones: iPhone launched 2007. Ramp up screen time realistically.
+  const birthYear = new Date().getFullYear() - age;
+  const phoneHours = (function() {
+    let total = 0;
+    for (let y = 2007; y <= new Date().getFullYear(); y++) {
+      const userAge = y - birthYear;
+      if (userAge < 10) continue;
+      // Screen time ramped up over the years
+      const era = y < 2012 ? 1.5 : y < 2016 ? 3 : y < 2020 ? 4 : 4.5;
+      total += era * 365;
+    }
+    return Math.round(total);
+  })();
   const pizzaSlices = Math.round(age * 46); // Americans avg ~46 slices/yr
   const timesLaughed = Math.round(age >= 5 ? (5 * 365 * 300 + Math.max(0, age - 5) * 365 * 15) : age * 365 * 300); // kids: 300/day, adults: 15/day
   const hoursWaiting = Math.round(age * 365 * 0.75); // ~45 min/day waiting
@@ -866,16 +878,16 @@ function revealTruths() {
       </div>
     </div>
 
-    ${hoursOnPhone > 0 ? `
+    ${phoneHours > 0 ? `
     <div class="revelation" data-reveal>
-      <div class="stat-number">${hoursOnPhone.toLocaleString()}</div>
+      <div class="stat-number">${phoneHours.toLocaleString()}</div>
       <div class="stat-unit">hours looking at a small rectangle</div>
       <div class="stat-context">
-        That's <em>${(hoursOnPhone / 24 / 365).toFixed(1)} years</em> of your life
+        That's <em>${(phoneHours / 24 / 365).toFixed(1)} years</em> of your life
         staring at a glowing rectangle that fits in your pocket. A device more
         powerful than every computer that put humans on the moon, combined.
-        You have used it primarily to look at pictures of other people's food
-        and argue with strangers. The moon is, frankly, embarrassed.
+        You have used it primarily to look at pictures of other people
+        and videos shorter than a hamster's attention span. The moon is, frankly, embarrassed.
       </div>
     </div>` : ''}
 
