@@ -447,6 +447,17 @@
     box-shadow: 0 0 40px rgba(212,175,55,0.3);
   }
 
+  /* ══════════ SUPERNOVA ══════════ */
+  #supernova {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  #supernova.active { opacity: 1; }
+
   /* ══════════ FLOATING FOOTNOTES ══════════ */
   .footnote {
     position: fixed;
@@ -503,6 +514,7 @@
 <body>
 
 <div class="star-field" id="stars"></div>
+<canvas id="supernova"></canvas>
 <div id="scroll-progress"></div>
 
 <!-- ══════════ ACT 0: CURTAIN ══════════ -->
@@ -625,7 +637,7 @@ function revealTruths() {
       <div class="stat-unit">heartbeats</div>
       <div class="stat-context">
         Your heart has beaten <em>${heartbeats.toLocaleString()}</em> times and not once
-        has it asked for a thank-you note. It started before you were born
+        has it threatened to quit. It started before you were born
         and it will be the last thing about you to give up. It has never taken a vacation.
         It didn't even get overtime during puberty, which was, frankly, a lot.
       </div>
@@ -868,7 +880,7 @@ function revealTruths() {
     </div>` : ''}
 
     <!-- ACT V -->
-    <div class="act-header" data-reveal>
+    <div class="act-header" data-reveal data-supernova>
       <div class="act-label">Act V</div>
       <h2>In Which It All Becomes<br>Unbearably Beautiful</h2>
     </div>
@@ -953,6 +965,10 @@ function revealTruths() {
         // Trigger meaning bar animation
         if (entry.target.hasAttribute('data-meaning')) {
           animateMeaning();
+        }
+        // Trigger supernova
+        if (entry.target.hasAttribute('data-supernova')) {
+          detonateSupernova();
         }
       }
     });
@@ -1068,8 +1084,6 @@ function setupShareLinks() {
 }
 
 // Run setup when share section exists (after revelations load)
-const origReveal = revealTruths;
-const _origRevealTruths = window.revealTruths;
 setTimeout(() => {
   const mo = new MutationObserver(() => {
     if (document.getElementById('share-x')) {
@@ -1079,6 +1093,144 @@ setTimeout(() => {
   });
   mo.observe(document.body, { childList: true, subtree: true });
 }, 100);
+
+// ══════════ SUPERNOVA ══════════
+let supernovaFired = false;
+function detonateSupernova() {
+  if (supernovaFired) return;
+  supernovaFired = true;
+
+  const canvas = document.getElementById('supernova');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.classList.add('active');
+
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const particles = [];
+  const ringParticles = [];
+  const NUM = 800;
+  const RINGS = 3;
+
+  // Color palette: gold, white, warm amber, soft blue, rose
+  const colors = [
+    [212,175,55], [255,255,255], [255,200,80],
+    [140,180,255], [255,180,180], [255,220,150],
+    [200,160,255], [255,255,200],
+  ];
+
+  // Main burst particles
+  for (let i = 0; i < NUM; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1 + Math.random() * 8;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const size = 1 + Math.random() * 3;
+    particles.push({
+      x: cx, y: cy,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      life: 1,
+      decay: 0.003 + Math.random() * 0.008,
+      r: color[0], g: color[1], b: color[2],
+      size,
+      trail: [],
+    });
+  }
+
+  // Expanding rings
+  for (let r = 0; r < RINGS; r++) {
+    ringParticles.push({
+      radius: 0,
+      speed: 3 + r * 1.5,
+      life: 1,
+      decay: 0.006 + r * 0.002,
+      width: 2 - r * 0.5,
+    });
+  }
+
+  // Central flash
+  let flashAlpha = 1;
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Central flash (white → gold fade)
+    if (flashAlpha > 0) {
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 200 * (1 - flashAlpha + 0.3));
+      grad.addColorStop(0, `rgba(255, 255, 240, ${flashAlpha})`);
+      grad.addColorStop(0.3, `rgba(212, 175, 55, ${flashAlpha * 0.6})`);
+      grad.addColorStop(1, `rgba(212, 175, 55, 0)`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      flashAlpha -= 0.015;
+    }
+
+    // Rings
+    ringParticles.forEach(ring => {
+      if (ring.life <= 0) return;
+      ring.radius += ring.speed;
+      ring.life -= ring.decay;
+      ctx.beginPath();
+      ctx.arc(cx, cy, ring.radius, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(212, 175, 55, ${ring.life * 0.4})`;
+      ctx.lineWidth = ring.width;
+      ctx.stroke();
+    });
+
+    // Particles with trails
+    let alive = 0;
+    particles.forEach(p => {
+      if (p.life <= 0) return;
+      alive++;
+
+      // Store trail
+      p.trail.push({ x: p.x, y: p.y, a: p.life });
+      if (p.trail.length > 8) p.trail.shift();
+
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= 0.995;
+      p.vy *= 0.995;
+      p.vy += 0.01; // slight gravity
+      p.life -= p.decay;
+
+      // Draw trail
+      for (let t = 0; t < p.trail.length; t++) {
+        const tp = p.trail[t];
+        const ta = (t / p.trail.length) * p.life * 0.3;
+        ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${ta})`;
+        ctx.fillRect(tp.x, tp.y, p.size * 0.5, p.size * 0.5);
+      }
+
+      // Draw particle
+      ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${p.life})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    if (alive > 0 || flashAlpha > 0) {
+      requestAnimationFrame(animate);
+    } else {
+      // Fade out canvas
+      canvas.style.transition = 'opacity 2s';
+      canvas.style.opacity = 0;
+      setTimeout(() => canvas.classList.remove('active'), 2000);
+    }
+  }
+
+  animate();
+}
+
+// Handle resize for supernova
+window.addEventListener('resize', () => {
+  const c = document.getElementById('supernova');
+  if (c.classList.contains('active')) {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+  }
+});
 </script>
 </body>
 </html>
