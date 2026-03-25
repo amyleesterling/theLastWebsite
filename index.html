@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE LAST WEBSITE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400&family=UnifrakturMaguntia&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #d4af37;
+    --deep: #0a0a0f;
+    --cream: #f5f0e8;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--deep);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ══════════ ACT I: THE CURTAIN ══════════ */
+  #curtain {
+    position: fixed; inset: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    background: var(--deep);
+    transition: opacity 1.5s ease, transform 1.5s ease;
+  }
+  #curtain.risen {
+    opacity: 0;
+    transform: translateY(-100%);
+    pointer-events: none;
+  }
+  #curtain h1 {
+    font-family: 'UnifrakturMaguntia', cursive;
+    font-size: clamp(2rem, 8vw, 6rem);
+    color: var(--gold);
+    text-align: center;
+    animation: flicker 3s ease-in-out infinite;
+    text-shadow: 0 0 40px rgba(212,175,55,0.3);
+  }
+  #curtain .subtitle {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(0.9rem, 2vw, 1.3rem);
+    color: #888;
+    margin-top: 1rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+  #enter-btn {
+    margin-top: 3rem;
+    padding: 1rem 3rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    cursor: pointer;
+    letter-spacing: 0.2em;
+    transition: all 0.5s;
+    position: relative;
+    overflow: hidden;
+  }
+  #enter-btn:hover {
+    background: var(--gold);
+    color: var(--deep);
+    box-shadow: 0 0 60px rgba(212,175,55,0.4);
+  }
+  #enter-btn::after {
+    content: '(there is no going back)';
+    position: absolute;
+    bottom: -20px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    color: #555;
+    white-space: nowrap;
+    font-style: italic;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  #enter-btn:hover::after { opacity: 1; }
+
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+    73% { opacity: 0.95; }
+    77% { opacity: 0.8; }
+  }
+
+  /* ══════════ THE AGE ORACLE ══════════ */
+  #oracle {
+    display: none;
+    min-height: 100vh;
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem;
+  }
+  #oracle.visible { display: flex; }
+  #oracle h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    color: var(--cream);
+    margin-bottom: 0.5rem;
+  }
+  #oracle .oracle-sub {
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 2.5rem;
+    font-style: italic;
+  }
+  #age-input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    width: 4ch;
+    text-align: center;
+    outline: none;
+    caret-color: var(--gold);
+  }
+  #age-input::placeholder { color: #333; }
+  #age-submit {
+    margin-top: 2rem;
+    padding: 0.8rem 2.5rem;
+    font-family: 'Playfair Display', serif;
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid #333;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.4s;
+    opacity: 0;
+  }
+  #age-submit.show { opacity: 1; }
+  #age-submit:hover { border-color: var(--gold); }
+
+  /* ══════════ THE REVELATIONS ══════════ */
+  #revelations {
+    display: none;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  #revelations.visible { display: block; }
+
+  .act-header {
+    text-align: center;
+    padding: 6rem 0 3rem;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .act-header.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .act-header .act-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .act-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 400;
+    line-height: 1.3;
+  }
+
+  .revelation {
+    padding: 3rem 0;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 1s cubic-bezier(0.22, 1, 0.36, 1);
+    border-bottom: 1px solid #1a1a2e;
+  }
+  .revelation.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .revelation .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .revelation .stat-unit {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    color: #888;
+    font-style: italic;
+    margin-top: 0.3rem;
+  }
+  .revelation .stat-context {
+    margin-top: 1.5rem;
+    color: #aaa;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    max-width: 600px;
+  }
+  .revelation .stat-context em {
+    color: var(--cream);
+    font-style: normal;
+  }
+
+  .philosophical-interlude {
+    text-align: center;
+    padding: 5rem 2rem;
+    opacity: 0;
+    transition: all 1.5s;
+  }
+  .philosophical-interlude.visible { opacity: 1; }
+  .philosophical-interlude blockquote {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    color: #ccc;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .philosophical-interlude .attribution {
+    margin-top: 1rem;
+    color: #555;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* ══════════ THE LOADING BAR OF MEANING ══════════ */
+  .meaning-section {
+    text-align: center;
+    padding: 6rem 2rem;
+    opacity: 0;
+    transition: all 1.5s;
+  }
+  .meaning-section.visible { opacity: 1; }
+  .meaning-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .meaning-bar-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    height: 4px;
+    background: #1a1a2e;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .meaning-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), #fff, var(--gold));
+    border-radius: 2px;
+    width: 0%;
+    transition: width 8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .meaning-percent {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--gold);
+    margin-top: 1rem;
+  }
+  .meaning-status {
+    color: #555;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    font-style: italic;
+    height: 1.2em;
+  }
+
+  /* ══════════ THE HOT DOG THEOREM ══════════ */
+  .hotdog-section {
+    text-align: center;
+    padding: 5rem 2rem;
+    opacity: 0;
+    transition: all 1.5s;
+  }
+  .hotdog-section.visible { opacity: 1; }
+  .hotdog-section h3 {
+    font-family: 'UnifrakturMaguntia', cursive;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .hotdog-options {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+  .hotdog-btn {
+    padding: 1rem 2rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    background: transparent;
+    color: var(--cream);
+    border: 1px solid #333;
+    cursor: pointer;
+    transition: all 0.4s;
+    min-width: 160px;
+  }
+  .hotdog-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .hotdog-result {
+    margin-top: 2rem;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: #888;
+    font-size: 1.1rem;
+    min-height: 3em;
+    line-height: 1.6;
+  }
+
+  /* ══════════ THE FINAL ACT ══════════ */
+  .finale {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    opacity: 0;
+    transition: all 2s;
+  }
+  .finale.visible { opacity: 1; }
+  .finale h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.4;
+    max-width: 700px;
+    margin-bottom: 2rem;
+  }
+  .finale .final-stat {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4rem, 12vw, 10rem);
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 80px rgba(212,175,55,0.3);
+    animation: pulse 3s ease-in-out infinite;
+  }
+  .finale .final-label {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    letter-spacing: 0.2em;
+  }
+  .finale .final-message {
+    margin-top: 4rem;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: #999;
+    max-width: 500px;
+    line-height: 1.8;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+
+  /* ══════════ FLOATING FOOTNOTES ══════════ */
+  .footnote {
+    position: fixed;
+    bottom: 1rem;
+    right: 1.5rem;
+    font-size: 0.65rem;
+    color: #333;
+    font-style: italic;
+    z-index: 10;
+    max-width: 250px;
+    text-align: right;
+    line-height: 1.4;
+    transition: opacity 0.5s;
+  }
+
+  /* ══════════ STARS ══════════ */
+  .star-field {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite;
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: var(--brightness); }
+  }
+
+  /* ══════════ SCROLL PROGRESS ══════════ */
+  #scroll-progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: var(--gold);
+    z-index: 999;
+    width: 0%;
+    transition: width 0.1s;
+    opacity: 0.6;
+  }
+
+  /* ══════════ RESPONSIVE ══════════ */
+  @media (max-width: 600px) {
+    .hotdog-options { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="star-field" id="stars"></div>
+<div id="scroll-progress"></div>
+
+<!-- ══════════ ACT 0: CURTAIN ══════════ -->
+<div id="curtain">
+  <h1>The Last Website</h1>
+  <div class="subtitle">a tragedy in five acts</div>
+  <button id="enter-btn" onclick="raiseCurtain()">ENTER THE VOID</button>
+</div>
+
+<!-- ══════════ ACT I: THE ORACLE ══════════ -->
+<div id="oracle">
+  <h2>Before we begin, a question.</h2>
+  <div class="oracle-sub">Answer honestly. The universe is watching.<br>(It isn't. It has never once looked in your direction.)</div>
+  <input type="number" id="age-input" placeholder="?" min="1" max="150" oninput="onAgeInput()">
+  <div style="color: #444; font-size: 0.75rem; margin-top: 0.5rem;">your age, in earth years</div>
+  <button id="age-submit" onclick="revealTruths()">REVEAL MY TRUTHS</button>
+</div>
+
+<!-- ══════════ REVELATIONS ══════════ -->
+<div id="revelations"></div>
+
+<div class="footnote" id="footnote">
+  * No atoms were harmed in the making of this website.<br>
+  They were, however, profoundly inconvenienced.
+</div>
+
+<script>
+// ══════════ STARS ══════════
+(function createStars() {
+  const field = document.getElementById('stars');
+  for (let i = 0; i < 200; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.setProperty('--dur', (2 + Math.random() * 5) + 's');
+    star.style.setProperty('--brightness', (0.3 + Math.random() * 0.7));
+    star.style.animationDelay = Math.random() * 5 + 's';
+    star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
+    field.appendChild(star);
+  }
+})();
+
+// ══════════ CURTAIN ══════════
+function raiseCurtain() {
+  document.getElementById('curtain').classList.add('risen');
+  setTimeout(() => {
+    document.getElementById('oracle').classList.add('visible');
+    document.getElementById('age-input').focus();
+  }, 800);
+}
+
+function onAgeInput() {
+  const val = document.getElementById('age-input').value;
+  const btn = document.getElementById('age-submit');
+  btn.classList.toggle('show', val.length > 0);
+}
+
+// ══════════ THE MATH OF BEING ══════════
+function revealTruths() {
+  const age = parseInt(document.getElementById('age-input').value);
+  if (!age || age < 1 || age > 150) return;
+
+  document.getElementById('oracle').style.display = 'none';
+  const rev = document.getElementById('revelations');
+  rev.classList.add('visible');
+
+  const days = age * 365.25;
+  const heartbeats = Math.round(days * 24 * 60 * 100); // ~100k/day
+  const breaths = Math.round(days * 24 * 60 * 15); // ~15/min
+  const blinks = Math.round(days * 24 * 60 * 17); // ~17/min while awake (adjusted)
+  const words = Math.round(age * 16000 * 365); // ~16k words/day
+  const dreams = Math.round(age * 365 * 4); // ~4-6 dreams/night
+  const sneezes = Math.round(age * 365 * 0.66); // ~200/yr avg
+  const hoursOnPhone = Math.round(age >= 12 ? (age - 12) * 365 * 4.5 : 0); // ~4.5 hrs/day post-12
+  const pizzaSlices = Math.round(age * 46); // Americans avg ~46 slices/yr
+  const timesLaughed = Math.round(age >= 5 ? (5 * 365 * 300 + Math.max(0, age - 5) * 365 * 15) : age * 365 * 300); // kids: 300/day, adults: 15/day
+  const hoursWaiting = Math.round(age * 365 * 0.75); // ~45 min/day waiting
+  const daysAsleep = Math.round(days / 3);
+
+  const hotdogResponses = {
+    sandwich: "You chose structure over chaos. Descartes would be proud. Diogenes would throw his barrel at you.",
+    taco: "A taco is merely an open-faced sandwich in denial. You have solved nothing. You have, however, demonstrated creativity under existential duress.",
+    neither: "By refusing to categorize, you have achieved enlightenment. Unfortunately, enlightenment comes with no health benefits and zero sandwich discounts.",
+    all: "If everything is a sandwich, nothing is. You have reinvented nihilism but with better condiments."
+  };
+
+  const footnotes = [
+    "* Plato's cave had no WiFi, which arguably made it more productive.",
+    "* Socrates died for less controversial takes than this.",
+    "* The universe is under no obligation to make sense to you. — Neil deGrasse Tyson (paraphrased while the universe wasn't looking)",
+    "* This website was peer-reviewed by exactly zero peers.",
+    "* Copernicus didn't die for this. But he would have found it mildly amusing.",
+    "* If you're reading this footnote, you're procrastinating. That's okay. The heat death of the universe is also procrastinating.",
+    "* Shakespeare wrote 37 plays. You've scrolled past 37 divs. You are equals now.",
+    "* No refunds on existential dread.",
+  ];
+
+  let footIdx = 0;
+  function rotateFootnote() {
+    const fn = document.getElementById('footnote');
+    fn.style.opacity = 0;
+    setTimeout(() => {
+      fn.innerHTML = footnotes[footIdx % footnotes.length];
+      fn.style.opacity = 1;
+      footIdx++;
+    }, 500);
+  }
+  setInterval(rotateFootnote, 8000);
+
+  rev.innerHTML = `
+    <!-- ACT I -->
+    <div class="act-header" data-reveal>
+      <div class="act-label">Act I</div>
+      <h2>In Which We Confront<br>The Arithmetic of Being Alive</h2>
+    </div>
+
+    <div class="revelation" data-reveal>
+      <div class="stat-number">${heartbeats.toLocaleString()}</div>
+      <div class="stat-unit">heartbeats</div>
+      <div class="stat-context">
+        Your heart has beaten <em>${heartbeats.toLocaleString()}</em> times and not once
+        has it asked for a thank-you note. It started before you were born
+        and it will be the last thing about you to give up. It has never taken a vacation.
+        It didn't even get overtime during puberty, which was, frankly, a lot.
+      </div>
+    </div>
+
+    <div class="revelation" data-reveal>
+      <div class="stat-number">${blinks.toLocaleString()}</div>
+      <div class="stat-unit">blinks</div>
+      <div class="stat-context">
+        Each blink lasts about 150 milliseconds. In that darkness — that tiny,
+        personal apocalypse — the entire visual world ceases to exist for you.
+        You have experienced <em>${blinks.toLocaleString()} small extinctions</em>
+        and emerged from every single one. Cockroaches could never.
+      </div>
+    </div>
+
+    <div class="philosophical-interlude" data-reveal>
+      <blockquote>
+        "The unexamined life is not worth living."
+      </blockquote>
+      <div class="attribution">
+        — SOCRATES, moments before being executed for examining life too thoroughly
+      </div>
+    </div>
+
+    <div class="revelation" data-reveal>
+      <div class="stat-number">${breaths.toLocaleString()}</div>
+      <div class="stat-unit">breaths</div>
+      <div class="stat-context">
+        You have inhaled and exhaled <em>${breaths.toLocaleString()} times</em>.
+        Each breath is a tiny act of faith that the atmosphere will still be there.
+        Some of these molecules were breathed by Cleopatra.
+        Some were breathed by a dinosaur.
+        You are, technically, kissing a T-Rex right now.
+      </div>
+    </div>
+
+    <!-- ACT II -->
+    <div class="act-header" data-reveal>
+      <div class="act-label">Act II</div>
+      <h2>In Which the Mundane<br>Becomes Unsettlingly Cosmic</h2>
+    </div>
+
+    <div class="revelation" data-reveal>
+      <div class="stat-number">${daysAsleep.toLocaleString()}</div>
+      <div class="stat-unit">days unconscious</div>
+      <div class="stat-context">
+        You have been asleep for <em>${(daysAsleep / 365).toFixed(1)} years</em>.
+        Every night you voluntarily enter a state of temporary paralysis
+        and hallucinate vividly for hours, and then you wake up and
+        go to work like that's normal. You have had approximately
+        <em>${dreams.toLocaleString()} dreams</em>, most of which you've
+        already forgotten. Entire worlds, obliterated by breakfast.
+      </div>
+    </div>
+
+    <div class="revelation" data-reveal>
+      <div class="stat-number">${pizzaSlices.toLocaleString()}</div>
+      <div class="stat-unit">slices of pizza</div>
+      <div class="stat-context">
+        If laid end to end, your lifetime pizza consumption would stretch
+        approximately <em>${Math.round(pizzaSlices * 0.25)} meters</em>.
+        This is not a useful measurement. Nothing about pizza needs to be
+        measured in linear meters. And yet, here we are, at the intersection
+        of geometry and mozzarella, and somehow it still means more to you
+        than most philosophy.
+      </div>
+    </div>
+
+    <div class="philosophical-interlude" data-reveal>
+      <blockquote>
+        "I think, therefore I am."
+      </blockquote>
+      <div class="attribution">
+        — DESCARTES, who perhaps never realized that in a few hundred years he'd own one of the most essential quotes in all of philosophy, but because people don't speak French anymore, every kid says his name wrong the first time
+      </div>
+    </div>
+
+    <div class="revelation" data-reveal>
+      <div class="stat-number">${timesLaughed.toLocaleString()}</div>
+      <div class="stat-unit">laughs</div>
+      <div class="stat-context">
+        Children laugh about 300 times a day. Adults laugh about 15.
+        ${age >= 18 ? `Somewhere around age 13, approximately <em>${Math.round((300-15)*365)} laughs per year</em>
+        simply vanished. Nobody held a funeral. The laughs that left were not
+        replaced by wisdom. They were replaced by knowing what a mortgage is.` :
+        `You are still in the golden age of laughing. Treasure it.
+        One day a laugh will be replaced by the knowledge of what a "credit score" is,
+        and it will never be funny.`}
+      </div>
+    </div>
+
+    <!-- ACT III -->
+    <div class="act-header" data-reveal>
+      <div class="act-label">Act III</div>
+      <h2>In Which We Address<br>The Hot Dog Question</h2>
+    </div>
+
+    <div class="hotdog-section" data-reveal>
+      <h3>The Great Schism of Our Time</h3>
+      <p style="color: #888; font-family: 'Playfair Display', serif; font-style: italic; max-width: 500px; margin: 0 auto; line-height: 1.6;">
+        Before we proceed to the abyss, there is a matter that has divided
+        more households than religion, more friendships than politics,
+        and more comment sections than literally anything else:
+      </p>
+      <p style="color: var(--cream); font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-top: 1.5rem;">
+        Is a hot dog a sandwich?
+      </p>
+      <div class="hotdog-options">
+        <button class="hotdog-btn" onclick="hotdogVerdict('sandwich')">Yes, a Sandwich</button>
+        <button class="hotdog-btn" onclick="hotdogVerdict('taco')">No, It's a Taco</button>
+        <button class="hotdog-btn" onclick="hotdogVerdict('neither')">It Transcends Category</button>
+        <button class="hotdog-btn" onclick="hotdogVerdict('all')">Everything Is a Sandwich</button>
+      </div>
+      <div class="hotdog-result" id="hotdog-result"></div>
+    </div>
+
+    <!-- ACT IV -->
+    <div class="act-header" data-reveal>
+      <div class="act-label">Act IV</div>
+      <h2>In Which the Meaning of Life<br>Is Located (99.7% Complete)</h2>
+    </div>
+
+    <div class="meaning-section" data-reveal data-meaning>
+      <div class="meaning-label">Calculating the meaning of life</div>
+      <div class="meaning-bar-container">
+        <div class="meaning-bar" id="meaning-bar"></div>
+      </div>
+      <div class="meaning-percent" id="meaning-percent">0%</div>
+      <div class="meaning-status" id="meaning-status">Initializing existential algorithms...</div>
+    </div>
+
+    <div class="philosophical-interlude" data-reveal>
+      <blockquote>
+        "To be, or not to be, that is the question."
+      </blockquote>
+      <div class="attribution">
+        — SHAKESPEARE, who also wrote a play where a man falls in love
+        with someone wearing a donkey head, so perhaps we should not take all his advice
+      </div>
+    </div>
+
+    <div class="revelation" data-reveal>
+      <div class="stat-number">${hoursWaiting.toLocaleString()}</div>
+      <div class="stat-unit">hours spent waiting</div>
+      <div class="stat-context">
+        In lines, in traffic, on hold, for texts back, for the weekend,
+        for "the right moment." <em>${(hoursWaiting / 24 / 365).toFixed(1)} years</em>
+        of your life spent in the anteroom of living. The ancient Greeks
+        didn't have hold music. This might be why they had time to invent democracy.
+      </div>
+    </div>
+
+    <div class="revelation" data-reveal>
+      <div class="stat-number">${sneezes.toLocaleString()}</div>
+      <div class="stat-unit">sneezes</div>
+      <div class="stat-context">
+        Each sneeze travels at roughly 100 mph. For a fraction of a second,
+        <em>your face becomes a category 1 hurricane</em>. Every muscle in your
+        body contracts. Your eyes close involuntarily. Some medieval scholars
+        believed the soul could escape during a sneeze, which is why people
+        say "bless you." Your soul has attempted <em>${sneezes.toLocaleString()} prison breaks</em>.
+        It has not yet succeeded. Probably.
+      </div>
+    </div>
+
+    ${hoursOnPhone > 0 ? `
+    <div class="revelation" data-reveal>
+      <div class="stat-number">${hoursOnPhone.toLocaleString()}</div>
+      <div class="stat-unit">hours looking at a small rectangle</div>
+      <div class="stat-context">
+        That's <em>${(hoursOnPhone / 24 / 365).toFixed(1)} years</em> of your life
+        staring at a glowing rectangle that fits in your pocket. A device more
+        powerful than every computer that put humans on the moon, combined.
+        You have used it primarily to look at pictures of other people's food
+        and argue with strangers. The moon is, frankly, embarrassed.
+      </div>
+    </div>` : ''}
+
+    <!-- ACT V -->
+    <div class="act-header" data-reveal>
+      <div class="act-label">Act V</div>
+      <h2>In Which It All Becomes<br>Unbearably Beautiful</h2>
+    </div>
+
+    <div class="revelation" data-reveal>
+      <div class="stat-number">${words.toLocaleString()}</div>
+      <div class="stat-unit">words spoken</div>
+      <div class="stat-context">
+        Among those words were first words and last words. Lies and confessions.
+        Jokes that made someone laugh so hard they couldn't breathe.
+        Apologies that came too late, and some that came just in time.
+        "I love you" and "I'm sorry" and "can I pet your dog?" —
+        the three sentences that have mattered most since language was invented.
+      </div>
+    </div>
+
+    <div class="philosophical-interlude" data-reveal>
+      <blockquote>
+        "We are all in the gutter, but some of us are looking at the stars."
+      </blockquote>
+      <div class="attribution">
+        — OSCAR WILDE, from the gutter, looking at the stars, absolutely nailing it
+      </div>
+    </div>
+
+    <div class="finale" data-reveal>
+      <h2>Of all the arrangements of atoms<br>in the observable universe,</h2>
+      <div class="final-stat">1</div>
+      <div class="final-label">of them is reading this sentence right now</div>
+      <div class="final-message">
+        You are a mass of carbon, oxygen, and hydrogen
+        that somehow learned to feel loneliness, taste chocolate,
+        and cry at movies about animated robots.<br><br>
+        You are cosmically insignificant and
+        irreplaceably, outrageously specific.<br><br>
+        You will never happen again.<br><br>
+        <span style="color: var(--gold);">Go do something weird with that.</span>
+      </div>
+
+      <div style="margin-top: 6rem; padding: 3rem 0; border-top: 1px solid #1a1a2e;">
+        <div style="color: #333; font-size: 0.75rem; font-style: italic;">
+          fin.<br><br>
+          This website was made by atoms, for atoms, about atoms.<br>
+          It took 13.8 billion years of cosmic evolution to produce this specific arrangement of pixels.<br>
+          The universe could have made literally anything else.<br>
+          And yet, here we are.<br><br>
+          <span style="color: #555;">THE LAST WEBSITE &bull; MMXXVI</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Scroll reveal observer
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+
+        // Trigger meaning bar animation
+        if (entry.target.hasAttribute('data-meaning')) {
+          animateMeaning();
+        }
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+
+  // Scroll progress
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    document.getElementById('scroll-progress').style.width = pct + '%';
+  });
+}
+
+// ══════════ HOT DOG VERDICT ══════════
+const hotdogResponses = {
+  sandwich: "You chose structure over chaos. Descartes would be proud. Diogenes would throw his barrel at you.",
+  taco: "A bold taxonomy. A taco is merely an open-faced sandwich in denial. You have solved nothing. You have, however, demonstrated creativity under existential duress.",
+  neither: "By refusing to categorize, you have achieved enlightenment. Unfortunately, enlightenment comes with no health benefits and zero sandwich discounts.",
+  all: "If everything is a sandwich, nothing is. You have reinvented nihilism but with better condiments. Nietzsche would subscribe to your newsletter."
+};
+
+function hotdogVerdict(choice) {
+  const result = document.getElementById('hotdog-result');
+  result.style.opacity = 0;
+  setTimeout(() => {
+    result.textContent = hotdogResponses[choice];
+    result.style.opacity = 1;
+    result.style.transition = 'opacity 0.8s';
+  }, 300);
+}
+
+// ══════════ MEANING OF LIFE LOADING BAR ══════════
+function animateMeaning() {
+  const bar = document.getElementById('meaning-bar');
+  const pct = document.getElementById('meaning-percent');
+  const status = document.getElementById('meaning-status');
+
+  const statuses = [
+    "Consulting ancient Greek philosophers...",
+    "Checking if 42 is still the answer...",
+    "Asking a dog. The dog seems to know something...",
+    "Cross-referencing every fortune cookie ever written...",
+    "Scanning the Voyager Golden Record for hints...",
+    "Googling it (even the cosmos Googles things)...",
+    "Overheard from a barista: 'Just be present, man'...",
+    "Almost there. The meaning is right on the tip of...",
+    "Buffer overflow in the existential stack...",
+    "Rounding error in the happiness subroutine...",
+    "The meaning of life is... is...",
+    "...still loading. It's always been loading.",
+    "Perhaps the loading IS the meaning? No, that's too on-the-nose.",
+    "Adding more decimal places. Precision is not clarity.",
+    "The asymptote mocks us.",
+    "Zeno called. He says we'll get there eventually. He's lying.",
+    "Each digit brings us closer to the truth and further from the point.",
+    "At this resolution, the meaning of life is indistinguishable from a rounding error.",
+  ];
+
+  let current = 0;
+  let decimals = 2;
+  let currentPct = 0;
+  // The target drifts ever closer to 100 but never arrives
+  // We keep adding decimal places to show the agonizing precision
+
+  function tick() {
+    const statusIdx = Math.min(Math.floor(current), statuses.length - 1);
+    status.textContent = statuses[statusIdx];
+
+    // Phase 1: race to ~99.97 (decimals = 2)
+    // Phase 2: slow crawl with growing decimals, asymptoting toward 100
+    if (current < 14) {
+      // Fast approach to 99.97
+      currentPct = 99.97 * (1 - Math.exp(-current * 0.3));
+      pct.textContent = currentPct.toFixed(2) + '%';
+      bar.style.width = Math.min(currentPct, 99.97) + '%';
+      current += 0.5;
+      setTimeout(tick, 600);
+    } else {
+      // Now the infinite crawl begins — each tick adds a decimal place
+      // and inches closer to 100 but never reaches it
+      const phase2Step = current - 14;
+      decimals = Math.min(2 + Math.floor(phase2Step), 15);
+      // remaining = 100 - currentPct, halve the gap each step
+      const remaining = 100 - currentPct;
+      currentPct = currentPct + remaining * 0.4;
+      // Clamp just under 100
+      if (currentPct > 99.999999999999999) currentPct = 99.999999999999999;
+      pct.textContent = currentPct.toFixed(decimals) + '%';
+      bar.style.width = Math.min(currentPct, 99.999) + '%';
+      current += 0.5;
+      // Slow down as we get more precise — the universe is in no hurry
+      const delay = 800 + phase2Step * 200;
+      setTimeout(tick, Math.min(delay, 3000));
+    }
+  }
+
+  tick();
+}
+</script>
+</body>
+</html>
