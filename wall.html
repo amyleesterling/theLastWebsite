@@ -318,7 +318,7 @@
 
 <div class="wall-header">
   <h1>The Wall</h1>
-  <div class="sub">Every visitor leaves a mark. None of them last forever.<br>But then again, neither does anything.</div>
+  <div class="sub">Every visitor leaves a mark. The atoms that wrote these words<br>will rearrange, but the wall remains.</div>
   <div class="count" id="note-count"></div>
   <a class="back-link" href="index.html">&larr; return to the void</a>
 </div>
@@ -398,7 +398,7 @@ const prompts = [
   "What would you graffiti on the wall of Plato's cave?",
 ];
 
-let currentPromptIdx = Math.floor(Math.random() * prompts.length);
+let currentPromptIdx = 0; // Default: "What would you tell your atoms before they rearrange?"
 
 function showPrompt() {
   document.getElementById('prompt-text').textContent = prompts[currentPromptIdx];
