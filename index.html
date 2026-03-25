@@ -382,6 +382,68 @@
     50% { transform: scale(1.02); }
   }
 
+  /* ══════════ SHARE BUTTONS ══════════ */
+  .share-section {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    text-align: center;
+  }
+  .share-label {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: #555;
+    font-size: 0.85rem;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.1em;
+  }
+  .share-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .share-btn {
+    padding: 0.7rem 1.5rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    background: transparent;
+    border: 1px solid #333;
+    color: #999;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: all 0.4s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .share-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .share-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+  .wall-link {
+    display: inline-block;
+    margin-top: 2rem;
+    padding: 0.9rem 2.5rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    text-decoration: none;
+    letter-spacing: 0.15em;
+    transition: all 0.5s;
+  }
+  .wall-link:hover {
+    background: var(--gold);
+    color: var(--deep);
+    box-shadow: 0 0 40px rgba(212,175,55,0.3);
+  }
+
   /* ══════════ FLOATING FOOTNOTES ══════════ */
   .footnote {
     position: fixed;
@@ -781,6 +843,20 @@ function revealTruths() {
         <span style="color: var(--gold);">Go do something weird with that.</span>
       </div>
 
+      <div class="share-section">
+        <div class="share-label">Inflict this upon others:</div>
+        <div class="share-buttons">
+          <a class="share-btn" id="share-x" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            SHARE ON X
+          </a>
+          <button class="share-btn" onclick="copyLink()">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span id="copy-text">COPY LINK</span>
+          </button>
+        </div>
+      </div>
+
       <div style="margin-top: 6rem; padding: 3rem 0; border-top: 1px solid #1a1a2e;">
         <div style="color: #333; font-size: 0.75rem; font-style: italic;">
           fin.<br><br>
@@ -788,7 +864,8 @@ function revealTruths() {
           It took 13.8 billion years of cosmic evolution to produce this specific arrangement of pixels.<br>
           The universe could have made literally anything else.<br>
           And yet, here we are.<br><br>
-          <span style="color: #555;">THE LAST WEBSITE &bull; MMXXVI</span>
+          <span style="color: #555;">THE LAST WEBSITE &bull; MMXXVI</span><br>
+          <span style="color: #444;">a project of <a href="https://x.com/amyneurons" style="color: #555;" target="_blank">@amyneurons</a> and <a href="https://x.com/claudeai" style="color: #555;" target="_blank">@claudeai</a></span>
         </div>
       </div>
     </div>
@@ -903,6 +980,36 @@ function animateMeaning() {
 
   tick();
 }
+
+// ══════════ SHARE ══════════
+function setupShareLinks() {
+  const url = 'https://thislast.com';
+  const text = `I just discovered the most ridiculous website the world has ever known.\n\nIt told me how many times my heart has beaten, asked if a hot dog is a sandwich, and tried to calculate the meaning of life (it's at 99.97%).\n\nA project of @amyneurons and @claudeai`;
+  const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+  const el = document.getElementById('share-x');
+  if (el) el.href = xUrl;
+}
+
+function copyLink() {
+  navigator.clipboard.writeText('https://thislast.com').then(() => {
+    const el = document.getElementById('copy-text');
+    el.textContent = 'COPIED!';
+    setTimeout(() => el.textContent = 'COPY LINK', 2000);
+  });
+}
+
+// Run setup when share section exists (after revelations load)
+const origReveal = revealTruths;
+const _origRevealTruths = window.revealTruths;
+setTimeout(() => {
+  const mo = new MutationObserver(() => {
+    if (document.getElementById('share-x')) {
+      setupShareLinks();
+      mo.disconnect();
+    }
+  });
+  mo.observe(document.body, { childList: true, subtree: true });
+}, 100);
 </script>
 </body>
 </html>

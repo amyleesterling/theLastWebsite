@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Wall — THE LAST WEBSITE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #d4af37;
+    --deep: #0a0a0f;
+    --cream: #f5f0e8;
+  }
+
+  body {
+    background: var(--deep);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ══════════ HEADER ══════════ */
+  .wall-header {
+    text-align: center;
+    padding: 4rem 2rem 2rem;
+  }
+  .wall-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 400;
+    color: var(--cream);
+  }
+  .wall-header .sub {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: #666;
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+  }
+  .wall-header .count {
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    margin-top: 1.5rem;
+    letter-spacing: 0.2em;
+  }
+  .back-link {
+    display: inline-block;
+    margin-top: 1.5rem;
+    color: #555;
+    font-size: 0.8rem;
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.3s;
+  }
+  .back-link:hover { color: var(--gold); }
+
+  /* ══════════ THE WALL ══════════ */
+  .wall {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.2rem;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .postit {
+    width: 220px;
+    min-height: 180px;
+    padding: 1.4rem 1.2rem 1rem;
+    border-radius: 2px;
+    position: relative;
+    box-shadow:
+      2px 3px 12px rgba(0,0,0,0.4),
+      inset 0 -2px 6px rgba(0,0,0,0.05);
+    transform: rotate(var(--rot));
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    animation: noteIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: var(--delay);
+  }
+  .postit:hover {
+    transform: rotate(0deg) scale(1.05);
+    box-shadow: 4px 6px 24px rgba(0,0,0,0.5);
+    z-index: 10;
+  }
+
+  /* Pin */
+  .postit::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 40% 35%, #e0e0e0, #888);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    z-index: 2;
+  }
+
+  /* Tape strip variant (every 3rd note) */
+  .postit.taped::before {
+    width: 50px;
+    height: 18px;
+    border-radius: 0;
+    background: rgba(255,255,255,0.15);
+    top: -8px;
+    box-shadow: none;
+    transform: translateX(-50%) rotate(var(--tape-rot, -3deg));
+  }
+
+  .postit .message {
+    font-family: 'Caveat', cursive;
+    font-size: 1.25rem;
+    line-height: 1.4;
+    color: #1a1a1a;
+    word-break: break-word;
+    flex: 1;
+  }
+
+  .postit .meta {
+    margin-top: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 0.3rem;
+  }
+  .postit .author {
+    font-family: 'Caveat', cursive;
+    font-size: 0.95rem;
+    color: #444;
+    font-weight: 600;
+  }
+  .postit .date {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.55rem;
+    color: #999;
+    letter-spacing: 0.05em;
+  }
+
+  .postit .prompt-tag {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.55rem;
+    color: #888;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    opacity: 0.7;
+  }
+
+  @keyframes noteIn {
+    from {
+      opacity: 0;
+      transform: rotate(var(--rot)) translateY(30px) scale(0.8);
+    }
+  }
+
+  /* ══════════ NOTE COLORS ══════════ */
+  .postit.c0 { background: #fff9b1; } /* classic yellow */
+  .postit.c1 { background: #ffb3ba; } /* pink */
+  .postit.c2 { background: #bae1ff; } /* blue */
+  .postit.c3 { background: #baffc9; } /* green */
+  .postit.c4 { background: #e8d5f5; } /* lavender */
+  .postit.c5 { background: #ffe0b2; } /* peach */
+  .postit.c6 { background: #f5f5dc; } /* cream */
+  .postit.c7 { background: #c8e6c9; } /* mint */
+
+  /* ══════════ SIGN SECTION ══════════ */
+  .sign-section {
+    max-width: 550px;
+    margin: 3rem auto;
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+  .sign-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+  .sign-prompt {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--gold);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    min-height: 2em;
+    line-height: 1.5;
+  }
+  .sign-prompt .shuffle {
+    display: inline-block;
+    cursor: pointer;
+    color: #555;
+    font-size: 0.7rem;
+    margin-left: 0.5rem;
+    font-style: normal;
+    letter-spacing: 0.1em;
+    transition: color 0.3s;
+    vertical-align: middle;
+  }
+  .sign-prompt .shuffle:hover { color: var(--gold); }
+
+  .sign-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .sign-form input,
+  .sign-form textarea {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #333;
+    color: var(--cream);
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    padding: 0.8rem 1rem;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.3s;
+    resize: none;
+  }
+  .sign-form input:focus,
+  .sign-form textarea:focus {
+    border-color: var(--gold);
+  }
+  .sign-form input::placeholder,
+  .sign-form textarea::placeholder {
+    color: #444;
+  }
+  .sign-form textarea {
+    min-height: 100px;
+  }
+  .sign-btn {
+    padding: 0.8rem 2rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    cursor: pointer;
+    letter-spacing: 0.15em;
+    transition: all 0.4s;
+    align-self: center;
+  }
+  .sign-btn:hover {
+    background: var(--gold);
+    color: var(--deep);
+  }
+  .sign-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .sign-result {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: #888;
+    font-size: 0.9rem;
+    min-height: 1.5em;
+    margin-top: 0.5rem;
+  }
+
+  /* ══════════ LOADING ══════════ */
+  .loading {
+    text-align: center;
+    padding: 4rem;
+    color: #555;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+  }
+
+  /* ══════════ STARS ══════════ */
+  .star-field {
+    position: fixed; inset: 0; z-index: -1; overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite;
+    opacity: 0;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: var(--brightness); }
+  }
+
+  /* ══════════ FOOTER ══════════ */
+  .wall-footer {
+    text-align: center;
+    padding: 4rem 2rem 2rem;
+    color: #333;
+    font-size: 0.7rem;
+    font-style: italic;
+  }
+
+  @media (max-width: 600px) {
+    .postit { width: 160px; min-height: 140px; }
+    .postit .message { font-size: 1.05rem; }
+    .wall { gap: 0.8rem; padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="star-field" id="stars"></div>
+
+<div class="wall-header">
+  <h1>The Wall</h1>
+  <div class="sub">Every visitor leaves a mark. None of them last forever.<br>But then again, neither does anything.</div>
+  <div class="count" id="note-count"></div>
+  <a class="back-link" href="index.html">&larr; return to the void</a>
+</div>
+
+<!-- ══════════ SIGN THE WALL ══════════ -->
+<div class="sign-section">
+  <h2>Leave your mark.</h2>
+  <div class="sign-prompt">
+    <span id="prompt-text"></span>
+    <span class="shuffle" onclick="shufflePrompt()" title="Another prompt">[another question]</span>
+  </div>
+  <div class="sign-form">
+    <input type="text" id="sign-name" placeholder="Your name (or alias, or spirit animal)" maxlength="50">
+    <textarea id="sign-message" placeholder="Your words for the wall..." maxlength="280"></textarea>
+    <button class="sign-btn" id="sign-btn" onclick="submitNote()">ETCH INTO THE VOID</button>
+    <div class="sign-result" id="sign-result"></div>
+  </div>
+</div>
+
+<div class="loading" id="loading">Summoning the collected wisdom of strangers...</div>
+
+<!-- ══════════ THE WALL OF NOTES ══════════ -->
+<div class="wall" id="wall"></div>
+
+<div class="wall-footer">
+  Every note here was written by a collection of atoms that briefly became self-aware.<br>
+  THE LAST WEBSITE &bull; MMXXVI
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ══════════ SUPABASE ══════════
+const sb = window.supabase.createClient(
+  'https://amyxocqdfcaeieerqllv.supabase.co',
+  'sb_publishable_uvng-9IdwolvuiCG9pQTIQ_1gyaKOVH'
+);
+
+// ══════════ STARS ══════════
+(function() {
+  const field = document.getElementById('stars');
+  for (let i = 0; i < 150; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.setProperty('--dur', (2+Math.random()*5)+'s');
+    s.style.setProperty('--brightness', 0.3+Math.random()*0.7);
+    s.style.animationDelay = Math.random()*5+'s';
+    s.style.width = s.style.height = (1+Math.random()*2)+'px';
+    field.appendChild(s);
+  }
+})();
+
+// ══════════ PROMPTS ══════════
+const prompts = [
+  "What would you tell your atoms before they rearrange?",
+  "The meaning of life in 10 words or less:",
+  "Leave a message for the heat death of the universe.",
+  "What's the most beautiful thing you've almost forgotten?",
+  "If the cosmos were listening, what would you whisper?",
+  "Write something that would make Socrates nod slowly.",
+  "What truth did you learn too late?",
+  "Finish this sentence: Before I became stardust again, I...",
+  "What would you tell a stranger who needed to hear it?",
+  "What's the one thing you know for certain?",
+  "What would your heart say if it could talk?",
+  "Describe the universe in the fewest possible words.",
+  "What advice would you give to a newly sentient AI?",
+  "What's worth being alive for today?",
+  "What would you graffiti on the wall of Plato's cave?",
+];
+
+let currentPromptIdx = Math.floor(Math.random() * prompts.length);
+
+function showPrompt() {
+  document.getElementById('prompt-text').textContent = prompts[currentPromptIdx];
+}
+function shufflePrompt() {
+  currentPromptIdx = (currentPromptIdx + 1) % prompts.length;
+  const el = document.getElementById('prompt-text');
+  el.style.opacity = 0;
+  setTimeout(() => {
+    showPrompt();
+    el.style.opacity = 1;
+    el.style.transition = 'opacity 0.4s';
+  }, 200);
+}
+showPrompt();
+
+// ══════════ NOTE COLORS ══════════
+const colors = 8;
+
+function createNoteEl(note, index) {
+  const div = document.createElement('div');
+  const colorIdx = (note.id || index) % colors;
+  const rot = (Math.random() * 8 - 4).toFixed(1);
+  const taped = index % 3 === 0;
+  const tapeRot = (Math.random() * 10 - 5).toFixed(1);
+
+  div.className = `postit c${colorIdx}${taped ? ' taped' : ''}`;
+  div.style.setProperty('--rot', rot + 'deg');
+  div.style.setProperty('--delay', (index * 0.05) + 's');
+  if (taped) div.style.setProperty('--tape-rot', tapeRot + 'deg');
+
+  const date = new Date(note.created_at);
+  const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  div.innerHTML = `
+    <div class="prompt-tag">"${escHtml(note.prompt)}"</div>
+    <div class="message">${escHtml(note.message)}</div>
+    <div class="meta">
+      <div class="author">— ${escHtml(note.name)}</div>
+      <div class="date">${dateStr}</div>
+    </div>
+  `;
+  return div;
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// ══════════ LOAD NOTES ══════════
+async function loadWall() {
+  const loading = document.getElementById('loading');
+  const wall = document.getElementById('wall');
+
+  try {
+    const { data, error, count } = await sb
+      .from('wall_notes')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .limit(200);
+
+    if (error) throw error;
+
+    loading.style.display = 'none';
+
+    if (!data || data.length === 0) {
+      wall.innerHTML = '<div class="loading">The wall is empty. Be the first atom to leave a mark.</div>';
+      return;
+    }
+
+    document.getElementById('note-count').textContent =
+      `${count || data.length} souls have signed the wall`;
+
+    data.forEach((note, i) => {
+      wall.appendChild(createNoteEl(note, i));
+    });
+
+  } catch (e) {
+    loading.textContent = 'The wall is contemplating its existence... (try refreshing)';
+    console.error(e);
+  }
+}
+
+// ══════════ SUBMIT NOTE ══════════
+async function submitNote() {
+  const name = document.getElementById('sign-name').value.trim();
+  const message = document.getElementById('sign-message').value.trim();
+  const result = document.getElementById('sign-result');
+  const btn = document.getElementById('sign-btn');
+
+  if (!name) {
+    result.textContent = 'Even anonymous atoms have names. Please enter one.';
+    return;
+  }
+  if (!message) {
+    result.textContent = 'The void appreciates enthusiasm, but requires words.';
+    return;
+  }
+  if (message.length < 3) {
+    result.textContent = 'Surely you have more than two characters worth of cosmic wisdom.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'ETCHING...';
+  result.textContent = '';
+
+  try {
+    const { error } = await sb.from('wall_notes').insert({
+      name: name.slice(0, 50),
+      message: message.slice(0, 280),
+      prompt: prompts[currentPromptIdx],
+    });
+
+    if (error) throw error;
+
+    const celebrations = [
+      "Your atoms have been immortalized. (Until the server bill is due.)",
+      "Etched. Socrates would have approved. Probably.",
+      "The wall accepts your offering. The universe remains indifferent, but we think it's lovely.",
+      "Written in pixels, which is the modern equivalent of stone. (It isn't.)",
+      "Your mark has been made. Somewhere, a philosopher just felt a tiny shiver.",
+      "The void has received your message and says thank you. (It didn't. But we did.)",
+    ];
+    result.textContent = celebrations[Math.floor(Math.random() * celebrations.length)];
+    result.style.color = var('--gold', '#d4af37');
+
+    document.getElementById('sign-message').value = '';
+    shufflePrompt();
+
+    // Add the new note to the top of the wall
+    const wall = document.getElementById('wall');
+    const newNote = createNoteEl({
+      name,
+      message,
+      prompt: prompts[currentPromptIdx],
+      created_at: new Date().toISOString(),
+      id: Date.now(),
+    }, 0);
+    newNote.style.setProperty('--delay', '0s');
+    wall.insertBefore(newNote, wall.firstChild);
+
+    // Update count
+    const countEl = document.getElementById('note-count');
+    const currentCount = parseInt(countEl.textContent) || 0;
+    countEl.textContent = `${currentCount + 1} souls have signed the wall`;
+
+  } catch (e) {
+    result.textContent = 'The cosmos experienced a hiccup. Try again?';
+    result.style.color = '#ff6b6b';
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'ETCH INTO THE VOID';
+  }
+}
+
+// Allow Enter in name field to move to message
+document.getElementById('sign-name').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('sign-message').focus();
+  }
+});
+
+loadWall();
+</script>
+</body>
+</html>
