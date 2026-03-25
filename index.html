@@ -718,6 +718,68 @@ function revealTruths() {
       </div>
     </div>
 
+    ${(function() {
+      const songsByYear = {
+        1958:"Volare~Domenico Modugno",1959:"The Battle of New Orleans~Johnny Horton",
+        1960:"Theme from A Summer Place~Percy Faith",1961:"Tossin' and Turnin'~Bobby Lewis",
+        1962:"Stranger on the Shore~Mr. Acker Bilk",1963:"Sugar Shack~Jimmy Gilmer & The Fireballs",
+        1964:"I Want to Hold Your Hand~The Beatles",1965:"Wooly Bully~Sam the Sham and the Pharaohs",
+        1966:"California Dreamin'~The Mamas & the Papas",1967:"To Sir With Love~Lulu",
+        1968:"Hey Jude~The Beatles",1969:"Sugar, Sugar~The Archies",
+        1970:"Bridge Over Troubled Water~Simon & Garfunkel",1971:"Joy to the World~Three Dog Night",
+        1972:"The First Time Ever I Saw Your Face~Roberta Flack",
+        1973:"Tie a Yellow Ribbon Round the Ole Oak Tree~Tony Orlando and Dawn",
+        1974:"The Way We Were~Barbra Streisand",1975:"Love Will Keep Us Together~Captain & Tennille",
+        1976:"Silly Love Songs~Wings",1977:"Tonight's the Night~Rod Stewart",
+        1978:"Shadow Dancing~Andy Gibb",1979:"My Sharona~The Knack",
+        1980:"Call Me~Blondie",1981:"Bette Davis Eyes~Kim Carnes",
+        1982:"Physical~Olivia Newton-John",1983:"Every Breath You Take~The Police",
+        1984:"When Doves Cry~Prince",1985:"Careless Whisper~George Michael",
+        1986:"That's What Friends Are For~Dionne & Friends",1987:"Walk Like an Egyptian~The Bangles",
+        1988:"Faith~George Michael",1989:"Look Away~Chicago",
+        1990:"Hold On~Wilson Phillips",1991:"(Everything I Do) I Do It for You~Bryan Adams",
+        1992:"End of the Road~Boyz II Men",1993:"I Will Always Love You~Whitney Houston",
+        1994:"The Sign~Ace of Base",1995:"Gangsta's Paradise~Coolio",
+        1996:"Macarena~Los Del Rio",1997:"Candle in the Wind 1997~Elton John",
+        1998:"Too Close~Next",1999:"Believe~Cher",
+        2000:"Breathe~Faith Hill",2001:"Hanging by a Moment~Lifehouse",
+        2002:"How You Remind Me~Nickelback",2003:"In Da Club~50 Cent",
+        2004:"Yeah!~Usher",2005:"You're Beautiful~James Blunt",
+        2006:"Bad Day~Daniel Powter",2007:"Irreplaceable~Beyonce",
+        2008:"Low~Flo Rida",2009:"Just Dance~Lady Gaga",
+        2010:"Tik Tok~Kesha",2011:"Rolling in the Deep~Adele",
+        2012:"Somebody That I Used to Know~Gotye",2013:"Thrift Shop~Macklemore",
+        2014:"Happy~Pharrell Williams",2015:"Uptown Funk~Mark Ronson ft. Bruno Mars",
+        2016:"Love Yourself~Justin Bieber",2017:"Shape of You~Ed Sheeran",
+        2018:"God's Plan~Drake",2019:"Old Town Road~Lil Nas X",
+        2020:"Blinding Lights~The Weeknd",2021:"Easy on Me~Adele",
+        2022:"As It Was~Harry Styles",2023:"Flowers~Miley Cyrus",
+        2024:"Lose Control~Teddy Swims",2025:"Die With a Smile~Lady Gaga & Bruno Mars"
+      };
+      const yearAt16 = new Date().getFullYear() - age + 16;
+      const entry = songsByYear[yearAt16];
+      if (!entry) return '';
+      const [song, artist] = entry.split('~');
+      const timesHeard = Math.round(365 * 2.3 + Math.random() * 200);
+      return `
+    <div class="revelation" data-reveal>
+      <div class="stat-number" style="font-size: clamp(1.5rem, 4vw, 3rem);">"${song}"</div>
+      <div class="stat-unit">${artist}, ${yearAt16}</div>
+      <div class="stat-context">
+        The year you were sixteen, this was the #1 song in the country.
+        You heard it approximately <em>${timesHeard} times</em> that year —
+        in cars, in stores, leaking from someone else's headphones,
+        hummed by strangers who didn't know they were humming it.<br><br>
+        Neuroscientists say the music you hear at 16 wires itself into your brain
+        more deeply than any other. Not because you chose it.
+        Because you were <em>becoming</em> someone, and this was the soundtrack
+        the universe assigned without asking.<br><br>
+        You can hear it right now, can't you? In your head. Without even trying.
+        ${yearAt16 < 2000 ? "It still sounds exactly the same. You don't." : "Somewhere, it's still playing. And somewhere, you're still sixteen."}
+      </div>
+    </div>`;
+    })()}
+
     <!-- ACT III -->
     <div class="act-header" data-reveal>
       <div class="act-label">Act III</div>
