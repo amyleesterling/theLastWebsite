@@ -528,7 +528,7 @@
 <div id="oracle">
   <h2>Before we begin, a question.</h2>
   <div class="oracle-sub">Answer honestly. The universe is watching.<br>(It isn't. It has never once looked in your direction.)</div>
-  <input type="number" id="age-input" placeholder="?" min="1" max="150" oninput="onAgeInput()">
+  <input type="number" id="age-input" placeholder="?" min="1" max="150" oninput="onAgeInput()" onkeydown="if(event.key==='Enter')revealTruths()">
   <div style="color: #444; font-size: 0.75rem; margin-top: 0.5rem;">your age, in earth years</div>
   <button id="age-submit" onclick="revealTruths()">REVEAL MY TRUTHS</button>
 </div>
@@ -974,15 +974,19 @@ function revealTruths() {
         if (entry.target.hasAttribute('data-meaning')) {
           animateMeaning();
         }
-        // Trigger supernova
-        if (entry.target.hasAttribute('data-supernova')) {
-          detonateSupernova();
-        }
       }
     });
   }, { threshold: 0.15 });
 
   document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+
+  // Supernova gets its own observer — fires when Act V is centered on screen
+  const novaObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) detonateSupernova();
+    });
+  }, { threshold: 0.8 });
+  document.querySelectorAll('[data-supernova]').forEach(el => novaObserver.observe(el));
 
   // Scroll progress
   window.addEventListener('scroll', () => {
@@ -1117,111 +1121,96 @@ function detonateSupernova() {
   const cx = canvas.width / 2;
   const cy = canvas.height / 2;
   const particles = [];
-  const ringParticles = [];
-  const NUM = 800;
-  const RINGS = 3;
+  const NUM = 2000;
 
-  // Color palette: gold, white, warm amber, soft blue, rose
-  const colors = [
-    [212,175,55], [255,255,255], [255,200,80],
-    [140,180,255], [255,180,180], [255,220,150],
-    [200,160,255], [255,255,200],
+  // Champagne palette: warm whites, golds, soft amber
+  const palette = [
+    [255,255,240],[255,248,220],[212,175,55],[255,223,120],
+    [255,240,200],[240,230,210],[255,210,80],[255,255,255],
   ];
 
-  // Main burst particles
+  // Create particles in a sphere-like burst
   for (let i = 0; i < NUM; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const speed = 1 + Math.random() * 8;
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const size = 1 + Math.random() * 3;
+    // Use gaussian-ish distribution for speed — most particles medium, few fast
+    const speed = (Math.random() + Math.random() + Math.random()) / 3 * 6 + 0.3;
+    const color = palette[Math.floor(Math.random() * palette.length)];
     particles.push({
       x: cx, y: cy,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
+      vx: Math.cos(angle) * speed * (0.8 + Math.random() * 0.4),
+      vy: Math.sin(angle) * speed * (0.8 + Math.random() * 0.4),
       life: 1,
-      decay: 0.003 + Math.random() * 0.008,
+      decay: 0.002 + Math.random() * 0.006,
       r: color[0], g: color[1], b: color[2],
-      size,
-      trail: [],
+      size: 0.5 + Math.random() * 2,
+      twinkle: Math.random() * Math.PI * 2, // phase offset for shimmer
+      twinkleSpeed: 0.05 + Math.random() * 0.15,
     });
   }
 
-  // Expanding rings
-  for (let r = 0; r < RINGS; r++) {
-    ringParticles.push({
-      radius: 0,
-      speed: 3 + r * 1.5,
-      life: 1,
-      decay: 0.006 + r * 0.002,
-      width: 2 - r * 0.5,
-    });
-  }
+  // Soft central bloom
+  let bloomAlpha = 0.8;
+  let bloomRadius = 20;
 
-  // Central flash
-  let flashAlpha = 1;
-
+  let frame = 0;
   function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Soft fade instead of hard clear — leaves a ghostly trail
+    ctx.fillStyle = 'rgba(10, 10, 15, 0.08)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Central flash (white → gold fade)
-    if (flashAlpha > 0) {
-      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 200 * (1 - flashAlpha + 0.3));
-      grad.addColorStop(0, `rgba(255, 255, 240, ${flashAlpha})`);
-      grad.addColorStop(0.3, `rgba(212, 175, 55, ${flashAlpha * 0.6})`);
+    // Every 3rd frame do a harder clear to prevent buildup
+    if (frame % 60 === 0) {
+      ctx.fillStyle = 'rgba(10, 10, 15, 0.3)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Central bloom — soft warm glow that expands and fades
+    if (bloomAlpha > 0) {
+      bloomRadius += 2;
+      bloomAlpha -= 0.005;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, bloomRadius);
+      grad.addColorStop(0, `rgba(255, 240, 200, ${bloomAlpha * 0.5})`);
+      grad.addColorStop(0.4, `rgba(212, 175, 55, ${bloomAlpha * 0.2})`);
       grad.addColorStop(1, `rgba(212, 175, 55, 0)`);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      flashAlpha -= 0.015;
     }
 
-    // Rings
-    ringParticles.forEach(ring => {
-      if (ring.life <= 0) return;
-      ring.radius += ring.speed;
-      ring.life -= ring.decay;
-      ctx.beginPath();
-      ctx.arc(cx, cy, ring.radius, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(212, 175, 55, ${ring.life * 0.4})`;
-      ctx.lineWidth = ring.width;
-      ctx.stroke();
-    });
-
-    // Particles with trails
+    // Particles — tiny champagne bubbles expanding outward
     let alive = 0;
+    ctx.globalCompositeOperation = 'lighter'; // additive blending for glow
     particles.forEach(p => {
       if (p.life <= 0) return;
       alive++;
 
-      // Store trail
-      p.trail.push({ x: p.x, y: p.y, a: p.life });
-      if (p.trail.length > 8) p.trail.shift();
-
       p.x += p.vx;
       p.y += p.vy;
-      p.vx *= 0.995;
-      p.vy *= 0.995;
-      p.vy += 0.01; // slight gravity
+      p.vx *= 0.998; // very slow deceleration
+      p.vy *= 0.998;
+      p.vy -= 0.003; // slight upward drift (like champagne bubbles)
       p.life -= p.decay;
 
-      // Draw trail
-      for (let t = 0; t < p.trail.length; t++) {
-        const tp = p.trail[t];
-        const ta = (t / p.trail.length) * p.life * 0.3;
-        ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${ta})`;
-        ctx.fillRect(tp.x, tp.y, p.size * 0.5, p.size * 0.5);
-      }
+      // Twinkle/shimmer
+      p.twinkle += p.twinkleSpeed;
+      const shimmer = 0.5 + 0.5 * Math.sin(p.twinkle);
+      const alpha = p.life * shimmer;
 
-      // Draw particle
-      ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${p.life})`;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-      ctx.fill();
+      // Draw soft glowing dot
+      const r = p.size * (0.5 + p.life * 0.5);
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 3);
+      grad.addColorStop(0, `rgba(${p.r},${p.g},${p.b},${alpha})`);
+      grad.addColorStop(0.5, `rgba(${p.r},${p.g},${p.b},${alpha * 0.3})`);
+      grad.addColorStop(1, `rgba(${p.r},${p.g},${p.b},0)`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(p.x - r * 3, p.y - r * 3, r * 6, r * 6);
     });
+    ctx.globalCompositeOperation = 'source-over';
 
-    if (alive > 0 || flashAlpha > 0) {
+    frame++;
+    if (alive > 0 || bloomAlpha > 0) {
       requestAnimationFrame(animate);
     } else {
-      // Fade out canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       canvas.style.transition = 'opacity 2s';
       canvas.style.opacity = 0;
       setTimeout(() => canvas.classList.remove('active'), 2000);
@@ -1230,15 +1219,6 @@ function detonateSupernova() {
 
   animate();
 }
-
-// Handle resize for supernova
-window.addEventListener('resize', () => {
-  const c = document.getElementById('supernova');
-  if (c.classList.contains('active')) {
-    c.width = window.innerWidth;
-    c.height = window.innerHeight;
-  }
-});
 </script>
 </body>
 </html>
