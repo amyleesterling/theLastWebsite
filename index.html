@@ -130,6 +130,9 @@
     caret-color: var(--gold);
   }
   #age-input::placeholder { color: #333; }
+  #age-input::-webkit-outer-spin-button,
+  #age-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  #age-input { -moz-appearance: textfield; }
   #age-submit {
     margin-top: 2rem;
     padding: 0.8rem 2.5rem;
@@ -697,7 +700,7 @@ function revealTruths() {
         "I think, therefore I am."
       </blockquote>
       <div class="attribution">
-        — DESCARTES, who perhaps never realized that in a few hundred years he'd own one of the most essential quotes in all of philosophy, but because people don't speak French anymore, every kid says his name wrong the first time
+        — DESCARTES, who thought therefore he was, until 1650, when he wasn't
       </div>
     </div>
 
@@ -850,14 +853,22 @@ function revealTruths() {
             <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             SHARE ON X
           </a>
-          <button class="share-btn" onclick="copyLink()">
-            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-            <span id="copy-text">COPY LINK</span>
-          </button>
+          <a class="share-btn" id="share-email" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            EMAIL TO A FRIEND
+          </a>
         </div>
       </div>
 
-      <div style="margin-top: 6rem; padding: 3rem 0; border-top: 1px solid #1a1a2e;">
+      <!-- SIGN THE WALL -->
+      <div style="margin-top: 5rem; padding: 3rem 2rem; border-top: 1px solid #1a1a2e; text-align: center;">
+        <div style="font-family: 'Playfair Display', serif; font-style: italic; color: #666; font-size: 0.95rem; margin-bottom: 1rem;">
+          Before you go — the wall remembers everyone.
+        </div>
+        <a class="wall-link" href="wall.html">SIGN THE WALL</a>
+      </div>
+
+      <div style="margin-top: 4rem; padding: 3rem 0; border-top: 1px solid #1a1a2e;">
         <div style="color: #333; font-size: 0.75rem; font-style: italic;">
           fin.<br><br>
           This website was made by atoms, for atoms, about atoms.<br>
@@ -984,18 +995,14 @@ function animateMeaning() {
 // ══════════ SHARE ══════════
 function setupShareLinks() {
   const url = 'https://thislast.com';
-  const text = `I just discovered the most ridiculous website the world has ever known.\n\nIt told me how many times my heart has beaten, asked if a hot dog is a sandwich, and tried to calculate the meaning of life (it's at 99.97%).\n\nA project of @amyneurons and @claudeai`;
-  const xUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-  const el = document.getElementById('share-x');
-  if (el) el.href = xUrl;
-}
+  const xText = `I just discovered the most ridiculous website the world has ever known.\n\nIt told me how many times my heart has beaten, asked if a hot dog is a sandwich, and tried to calculate the meaning of life (it's at 99.97%).\n\nA project of @amyneurons and @claudeai`;
+  const xEl = document.getElementById('share-x');
+  if (xEl) xEl.href = `https://x.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(url)}`;
 
-function copyLink() {
-  navigator.clipboard.writeText('https://thislast.com').then(() => {
-    const el = document.getElementById('copy-text');
-    el.textContent = 'COPIED!';
-    setTimeout(() => el.textContent = 'COPY LINK', 2000);
-  });
+  const emailSubject = 'You need to see this website immediately';
+  const emailBody = `I just discovered the most ridiculous website the world has ever known.\n\nIt told me how many times my heart has beaten, asked if a hot dog is a sandwich, and tried to calculate the meaning of life (it's at 99.97%).\n\nYou will laugh. You might cry. You will definitely have opinions about hot dogs.\n\n${url}`;
+  const emailEl = document.getElementById('share-email');
+  if (emailEl) emailEl.href = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
 }
 
 // Run setup when share section exists (after revelations load)
