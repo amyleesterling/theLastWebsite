@@ -995,12 +995,12 @@ function animateMeaning() {
 // ══════════ SHARE ══════════
 function setupShareLinks() {
   const url = 'https://thislast.com';
-  const xText = `I just discovered the most ridiculous website the world has ever known.\n\nIt told me how many times my heart has beaten, asked if a hot dog is a sandwich, and tried to calculate the meaning of life (it's at 99.97%).\n\nA project of @amyneurons and @claudeai`;
+  const xText = `I just found The Last Website — the one you should read before bed.\n\nIt told me how many times my heart has beaten, asked if a hot dog is a sandwich, and tried to calculate the meaning of life (it's at 99.97%).\n\nA project of @amyneurons and @claudeai`;
   const xEl = document.getElementById('share-x');
   if (xEl) xEl.href = `https://x.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(url)}`;
 
   const emailSubject = 'You need to see this website immediately';
-  const emailBody = `I just discovered the most ridiculous website the world has ever known.\n\nIt told me how many times my heart has beaten, asked if a hot dog is a sandwich, and tried to calculate the meaning of life (it's at 99.97%).\n\nYou will laugh. You might cry. You will definitely have opinions about hot dogs.\n\n${url}`;
+  const emailBody = `I just found The Last Website — the one you should read before bed.\n\nIt told me how many times my heart has beaten, asked if a hot dog is a sandwich, and tried to calculate the meaning of life (it's at 99.97%).\n\nYou will laugh. You might cry. You will definitely have opinions about hot dogs.\n\n${url}`;
   const emailEl = document.getElementById('share-email');
   if (emailEl) emailEl.href = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
 }
