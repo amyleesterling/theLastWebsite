@@ -940,6 +940,21 @@ function revealTruths() {
       </div>
       <div class="hotdog-result" id="hotdog-result"></div>
       <div class="hotdog-survey-results" id="hotdog-survey" style="display:none;"></div>
+
+      <!-- Pop-Tart follow-up -->
+      <div id="poptart-section" style="display:none; margin-top: 4rem; opacity: 0; transition: opacity 1.5s;">
+        <p style="color: var(--cream); font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 1.5rem;">
+          One more. Is a Pop-Tart a ravioli?
+        </p>
+        <div class="hotdog-options">
+          <button class="hotdog-btn" onclick="poptartVerdict('yes')">Obviously Yes</button>
+          <button class="hotdog-btn" onclick="poptartVerdict('calzone')">It's a Calzone</button>
+          <button class="hotdog-btn" onclick="poptartVerdict('no')">Absolutely Not</button>
+          <button class="hotdog-btn" onclick="poptartVerdict('empanada')">It's an Empanada</button>
+        </div>
+        <div class="hotdog-result" id="poptart-result"></div>
+        <div class="hotdog-survey-results" id="poptart-survey" style="display:none;"></div>
+      </div>
     </div>
 
     <!-- ACT IV -->
@@ -1205,10 +1220,92 @@ async function hotdogVerdict(choice) {
       surveyDiv.querySelectorAll('.survey-bar-fill').forEach(bar => {
         setTimeout(() => { bar.style.width = bar.dataset.pct + '%'; }, 100);
       });
+      // Reveal Pop-Tart question after a beat
+      setTimeout(() => {
+        const pt = document.getElementById('poptart-section');
+        pt.style.display = 'block';
+        setTimeout(() => { pt.style.opacity = 1; }, 50);
+      }, 2000);
     }, 800);
   } catch (e) {
     console.log('Results fetch failed:', e);
   }
+}
+
+// ══════════ POP-TART VERDICT ══════════
+const poptartResponses = {
+  yes: "Correct. Dough on the outside, filling on the inside. It's a ravioli. The Italians simply lacked the vision to add frosting.",
+  calzone: "A calzone is just a ravioli that went to the gym. You've solved nothing but you've made it sound fancier.",
+  no: "You're in denial. A sealed pocket of dough with filling inside is a ravioli. Your breakfast has been Italian this whole time.",
+  empanada: "Now we're getting somewhere. You've correctly identified that every culture independently invented 'put stuff inside dough and seal it.' Humanity's one true universal language."
+};
+
+const poptartLabels = {
+  yes: "Obviously Yes",
+  calzone: "It's a Calzone",
+  no: "Absolutely Not",
+  empanada: "It's an Empanada"
+};
+
+async function poptartVerdict(choice) {
+  document.querySelectorAll('#poptart-section .hotdog-btn').forEach(btn => {
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.4';
+  });
+
+  const result = document.getElementById('poptart-result');
+  result.style.opacity = 0;
+  setTimeout(() => {
+    result.textContent = poptartResponses[choice];
+    result.style.opacity = 1;
+    result.style.transition = 'opacity 0.8s';
+  }, 300);
+
+  const votesRef = db.collection('poptart_votes').doc('totals');
+  try {
+    await db.runTransaction(async (tx) => {
+      const doc = await tx.get(votesRef);
+      if (!doc.exists) {
+        tx.set(votesRef, { yes: 0, calzone: 0, no: 0, empanada: 0, [choice]: 1 });
+      } else {
+        tx.update(votesRef, { [choice]: firebase.firestore.FieldValue.increment(1) });
+      }
+    });
+  } catch (e) { console.log('Pop-Tart vote failed:', e); }
+
+  try {
+    const doc = await votesRef.get();
+    const data = doc.exists ? doc.data() : { yes: 0, calzone: 0, no: 0, empanada: 0 };
+    const total = (data.yes || 0) + (data.calzone || 0) + (data.no || 0) + (data.empanada || 0);
+    const surveyDiv = document.getElementById('poptart-survey');
+
+    let html = '<div style="color:#666;font-size:0.8rem;text-align:center;margin-bottom:1rem;letter-spacing:0.1em;">' +
+      total.toLocaleString() + ' SOULS HAVE WEIGHED IN</div>';
+
+    ['yes', 'calzone', 'no', 'empanada'].forEach(key => {
+      const count = data[key] || 0;
+      const pct = total > 0 ? ((count / total) * 100).toFixed(1) : '0.0';
+      const isUser = key === choice;
+      html += `<div class="survey-bar-row">
+        <div class="survey-bar-label">${poptartLabels[key]}</div>
+        <div class="survey-bar-track">
+          <div class="survey-bar-fill ${isUser ? 'user-choice' : ''}" data-pct="${pct}"></div>
+        </div>
+        <div class="survey-bar-pct">${pct}%</div>
+      </div>`;
+    });
+
+    surveyDiv.innerHTML = html;
+    surveyDiv.style.display = 'block';
+    surveyDiv.style.opacity = 0;
+    setTimeout(() => {
+      surveyDiv.style.transition = 'opacity 0.8s';
+      surveyDiv.style.opacity = 1;
+      surveyDiv.querySelectorAll('.survey-bar-fill').forEach(bar => {
+        setTimeout(() => { bar.style.width = bar.dataset.pct + '%'; }, 100);
+      });
+    }, 800);
+  } catch (e) { console.log('Pop-Tart results failed:', e); }
 }
 
 // ══════════ MEANING OF LIFE LOADING BAR ══════════
