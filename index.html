@@ -1204,7 +1204,7 @@ function detonateSupernova() {
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
       life: 1,
-      decay: 0.005 + Math.random() * 0.01, // faster decay — less obscuring
+      decay: 0.002 + Math.random() * 0.004, // slow graceful fade
       r: color[0], g: color[1], b: color[2],
       size: 0.5 + Math.random() * 1.5,
       twinkle: Math.random() * Math.PI * 2,
