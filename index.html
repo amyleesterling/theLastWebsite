@@ -1167,6 +1167,13 @@ setTimeout(() => {
 
 // ══════════ SUPERNOVA ══════════
 let supernovaFired = false;
+let mouseX = -1, mouseY = -1;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
+
 function detonateSupernova() {
   if (supernovaFired) return;
   supernovaFired = true;
@@ -1180,99 +1187,102 @@ function detonateSupernova() {
   const cx = canvas.width / 2;
   const cy = canvas.height / 2;
   const particles = [];
-  const NUM = 2000;
+  const NUM = 1200;
 
-  // Champagne palette: warm whites, golds, soft amber
+  // Champagne palette — lighter, more transparent
   const palette = [
     [255,255,240],[255,248,220],[212,175,55],[255,223,120],
-    [255,240,200],[240,230,210],[255,210,80],[255,255,255],
+    [255,240,200],[255,210,80],[255,255,255],
   ];
 
-  // Create particles in a sphere-like burst
   for (let i = 0; i < NUM; i++) {
     const angle = Math.random() * Math.PI * 2;
-    // Use gaussian-ish distribution for speed — most particles medium, few fast
-    const speed = (Math.random() + Math.random() + Math.random()) / 3 * 6 + 0.3;
+    const speed = (Math.random() + Math.random()) / 2 * 5 + 0.5;
     const color = palette[Math.floor(Math.random() * palette.length)];
     particles.push({
       x: cx, y: cy,
-      vx: Math.cos(angle) * speed * (0.8 + Math.random() * 0.4),
-      vy: Math.sin(angle) * speed * (0.8 + Math.random() * 0.4),
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
       life: 1,
-      decay: 0.002 + Math.random() * 0.006,
+      decay: 0.005 + Math.random() * 0.01, // faster decay — less obscuring
       r: color[0], g: color[1], b: color[2],
-      size: 0.5 + Math.random() * 2,
-      twinkle: Math.random() * Math.PI * 2, // phase offset for shimmer
-      twinkleSpeed: 0.05 + Math.random() * 0.15,
+      size: 0.5 + Math.random() * 1.5,
+      twinkle: Math.random() * Math.PI * 2,
+      twinkleSpeed: 0.08 + Math.random() * 0.15,
     });
   }
 
-  // Soft central bloom
-  let bloomAlpha = 0.8;
+  let bloomAlpha = 0.6;
   let bloomRadius = 20;
 
-  let frame = 0;
   function animate() {
-    // Soft fade instead of hard clear — leaves a ghostly trail
-    ctx.fillStyle = 'rgba(10, 10, 15, 0.08)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Every 3rd frame do a harder clear to prevent buildup
-    if (frame % 60 === 0) {
-      ctx.fillStyle = 'rgba(10, 10, 15, 0.3)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    // Central bloom — soft warm glow that expands and fades
+    // Central bloom
     if (bloomAlpha > 0) {
-      bloomRadius += 2;
-      bloomAlpha -= 0.005;
+      bloomRadius += 3;
+      bloomAlpha -= 0.008;
       const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, bloomRadius);
-      grad.addColorStop(0, `rgba(255, 240, 200, ${bloomAlpha * 0.5})`);
-      grad.addColorStop(0.4, `rgba(212, 175, 55, ${bloomAlpha * 0.2})`);
+      grad.addColorStop(0, `rgba(255, 240, 200, ${bloomAlpha * 0.4})`);
+      grad.addColorStop(0.4, `rgba(212, 175, 55, ${bloomAlpha * 0.15})`);
       grad.addColorStop(1, `rgba(212, 175, 55, 0)`);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    // Particles — tiny champagne bubbles expanding outward
     let alive = 0;
-    ctx.globalCompositeOperation = 'lighter'; // additive blending for glow
+    ctx.globalCompositeOperation = 'lighter';
     particles.forEach(p => {
       if (p.life <= 0) return;
       alive++;
 
+      // Mouse repulsion — particles scatter away from cursor
+      if (mouseX >= 0) {
+        const dx = p.x - mouseX;
+        const dy = p.y - mouseY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 150 && dist > 0) {
+          const force = (150 - dist) / 150 * 0.8;
+          p.vx += (dx / dist) * force;
+          p.vy += (dy / dist) * force;
+        }
+      }
+
       p.x += p.vx;
       p.y += p.vy;
-      p.vx *= 0.998; // very slow deceleration
-      p.vy *= 0.998;
-      p.vy -= 0.003; // slight upward drift (like champagne bubbles)
+      p.vx *= 0.99;
+      p.vy *= 0.99;
+      p.vy -= 0.005; // gentle upward drift
       p.life -= p.decay;
 
-      // Twinkle/shimmer
+      // Twinkle
       p.twinkle += p.twinkleSpeed;
       const shimmer = 0.5 + 0.5 * Math.sin(p.twinkle);
-      const alpha = p.life * shimmer;
+      const alpha = p.life * shimmer * 0.7; // more transparent overall
 
-      // Draw soft glowing dot
-      const r = p.size * (0.5 + p.life * 0.5);
-      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 3);
-      grad.addColorStop(0, `rgba(${p.r},${p.g},${p.b},${alpha})`);
-      grad.addColorStop(0.5, `rgba(${p.r},${p.g},${p.b},${alpha * 0.3})`);
-      grad.addColorStop(1, `rgba(${p.r},${p.g},${p.b},0)`);
-      ctx.fillStyle = grad;
-      ctx.fillRect(p.x - r * 3, p.y - r * 3, r * 6, r * 6);
+      // Simple glowing dot — no heavy radial gradients
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alpha})`;
+      ctx.fill();
+
+      // Tiny glow halo
+      if (p.size > 1) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life * 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alpha * 0.15})`;
+        ctx.fill();
+      }
     });
     ctx.globalCompositeOperation = 'source-over';
 
-    frame++;
     if (alive > 0 || bloomAlpha > 0) {
       requestAnimationFrame(animate);
     } else {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      canvas.style.transition = 'opacity 2s';
+      canvas.style.transition = 'opacity 1s';
       canvas.style.opacity = 0;
-      setTimeout(() => canvas.classList.remove('active'), 2000);
+      setTimeout(() => canvas.classList.remove('active'), 1000);
     }
   }
 
