@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THE LAST WEBSITE</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='12' fill='%230a0a0f'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='%23d4af37' font-family='serif'>∞</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400&family=UnifrakturMaguntia&display=swap');
 
@@ -447,6 +448,46 @@
     box-shadow: 0 0 40px rgba(212,175,55,0.3);
   }
 
+  /* ══════════ PERSISTENT SHARE ══════════ */
+  #persistent-share {
+    position: fixed;
+    top: 1rem;
+    right: 1.5rem;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
+  }
+  #persistent-share.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #persistent-share a {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #666;
+    text-decoration: none;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 0.8rem;
+    border: 1px solid #333;
+    border-radius: 3px;
+    transition: all 0.3s;
+    background: rgba(10,10,15,0.8);
+    backdrop-filter: blur(4px);
+  }
+  #persistent-share a:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+  #persistent-share svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
   /* ══════════ SUPERNOVA ══════════ */
   #supernova {
     position: fixed;
@@ -515,6 +556,12 @@
 
 <div class="star-field" id="stars"></div>
 <canvas id="supernova"></canvas>
+<div id="persistent-share">
+  <a id="persistent-x" href="#" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    SHARE
+  </a>
+</div>
 <div id="scroll-progress"></div>
 
 <!-- ══════════ ACT 0: CURTAIN ══════════ -->
@@ -581,6 +628,13 @@ function revealTruths() {
   document.getElementById('oracle').style.display = 'none';
   const rev = document.getElementById('revelations');
   rev.classList.add('visible');
+
+  // Show persistent share button
+  const ps = document.getElementById('persistent-share');
+  const psLink = document.getElementById('persistent-x');
+  const shareText = `I just found The Last Website — the one you should read before bed.\n\nIt told me how many times my heart has beaten, asked if a hot dog is a sandwich, and tried to calculate the meaning of life (it's at 99.97%).\n\nA project of @amyneurons and @claudeai`;
+  psLink.href = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent('https://thislast.com')}`;
+  setTimeout(() => ps.classList.add('show'), 2000);
 
   const days = age * 365.25;
   const heartbeats = Math.round(days * 24 * 60 * 100); // ~100k/day
