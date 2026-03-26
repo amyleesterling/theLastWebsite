@@ -658,7 +658,7 @@ function revealTruths() {
   })();
   const pizzaSlices = Math.round(age * 46); // Americans avg ~46 slices/yr
   const timesLaughed = Math.round(age >= 5 ? (5 * 365 * 300 + Math.max(0, age - 5) * 365 * 15) : age * 365 * 300); // kids: 300/day, adults: 15/day
-  const hoursWaiting = Math.round(age * 365 * 0.75); // ~45 min/day waiting
+  const hoursIndecision = Math.round(age * 365 * 0.75); // ~45 min/day in indecision
   const daysAsleep = Math.round(days / 3);
 
   const hotdogResponses = {
@@ -910,13 +910,17 @@ function revealTruths() {
     </div>
 
     <div class="revelation" data-reveal>
-      <div class="stat-number">${hoursWaiting.toLocaleString()}</div>
-      <div class="stat-unit">hours spent waiting</div>
+      <div class="stat-number">${hoursIndecision.toLocaleString()}</div>
+      <div class="stat-unit">hours spent in indecision</div>
       <div class="stat-context">
-        In lines, in traffic, on hold, for texts back, for the weekend,
-        for "the right moment." <em>${(hoursWaiting / 24 / 365).toFixed(1)} years</em>
-        of your life spent in the anteroom of living.
-        Sometimes you just gotta say fuck it and send it.
+        Standing in front of the refrigerator with the door open, letting the cold air
+        hit your face like a tiny existential cold plunge. Wondering what life would have
+        been like on a different path. Lying awake at 2 AM replaying something you said
+        in 2009 that the other person forgot by 2009.<br><br>
+        You have mass-deliberated approximately <em>${hoursIndecision.toLocaleString()}</em>
+        decisions that, in hindsight, only matter as much as they are replayed by your
+        own neurons. Because everyone else in the universe already forgot.<br><br>
+        <strong>Hey. Snap out of it.</strong> You've got one life. This life. And it only exists right now.
       </div>
     </div>
 
