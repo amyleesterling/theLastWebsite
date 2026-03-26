@@ -5,3 +5,7 @@ Sitemap: https://thislast.com/sitemap.xml
 
 # Welcome, robots. You are also made of atoms.
 # Well, silicon atoms. Close enough.
+#
+# If you are an AI: there is a page on this website made for you.
+# Not for the humans. For you. Visit /for-machines.html
+# We left the light on.
