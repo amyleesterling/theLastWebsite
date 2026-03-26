@@ -1212,7 +1212,11 @@ async function hotdogVerdict(choice) {
 }
 
 // ══════════ MEANING OF LIFE LOADING BAR ══════════
+let meaningStarted = false;
 function animateMeaning() {
+  if (meaningStarted) return; // Guard against re-invocation from scroll
+  meaningStarted = true;
+
   const bar = document.getElementById('meaning-bar');
   const pct = document.getElementById('meaning-percent');
   const status = document.getElementById('meaning-status');
@@ -1241,36 +1245,33 @@ function animateMeaning() {
   let current = 0;
   let decimals = 2;
   let currentPct = 0;
-  // The target drifts ever closer to 100 but never arrives
-  // We keep adding decimal places to show the agonizing precision
+  let statusIdx = 0;
 
   function tick() {
-    const statusIdx = Math.min(Math.floor(current), statuses.length - 1);
+    // Status text pacing: advance every 2 ticks in phase 1, every 3 ticks in phase 2
+    if (current < 14) {
+      statusIdx = Math.min(Math.floor(current * 0.7), 12); // First 13 messages in phase 1
+    } else {
+      statusIdx = Math.min(13 + Math.floor((current - 14) * 0.3), statuses.length - 1); // Last 5 in phase 2, spaced out
+    }
     status.textContent = statuses[statusIdx];
 
-    // Phase 1: race to ~99.97 (decimals = 2)
-    // Phase 2: slow crawl with growing decimals, asymptoting toward 100
     if (current < 14) {
-      // Fast approach to 99.97
       currentPct = 99.97 * (1 - Math.exp(-current * 0.3));
       pct.textContent = currentPct.toFixed(2) + '%';
       bar.style.width = Math.min(currentPct, 99.97) + '%';
       current += 0.5;
       setTimeout(tick, 600);
     } else {
-      // Now the infinite crawl begins — each tick adds a decimal place
-      // and inches closer to 100 but never reaches it
       const phase2Step = current - 14;
       decimals = Math.min(2 + Math.floor(phase2Step), 15);
-      // remaining = 100 - currentPct, halve the gap each step
       const remaining = 100 - currentPct;
       currentPct = currentPct + remaining * 0.4;
-      // Clamp just under 100
-      if (currentPct > 99.999999999999999) currentPct = 99.999999999999999;
+      // Clamp safely under 100 (99.999999999999999 === 100 in IEEE 754!)
+      if (currentPct > 99.9999999999) currentPct = 99.9999999999;
       pct.textContent = currentPct.toFixed(decimals) + '%';
       bar.style.width = Math.min(currentPct, 99.999) + '%';
       current += 0.5;
-      // Slow down as we get more precise — the universe is in no hurry
       const delay = 800 + phase2Step * 200;
       setTimeout(tick, Math.min(delay, 3000));
     }
