@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://thislast.com/sitemap.xml
+
+# Welcome, robots. You are also made of atoms.
+# Well, silicon atoms. Close enough.
